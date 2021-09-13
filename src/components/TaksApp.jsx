@@ -15,7 +15,7 @@ const TaksApp = ({stateTaks,guardarRecargarProductos}) => {
         name: '',
         description: ''
     })
-    
+
     const { url, name, description } = formValue
 
     const handleSubmit = async (e) => {
@@ -53,12 +53,6 @@ const TaksApp = ({stateTaks,guardarRecargarProductos}) => {
 
     const handleEdit = async (tarea) => {
       
-        setForm({
-            url: tarea.url,
-            name: tarea.name,
-            description: tarea.description
-        })
-
     }
     
 

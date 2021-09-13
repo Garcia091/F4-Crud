@@ -10,13 +10,12 @@ const TaksApp = ({stateTaks,guardarRecargarProductos}) => {
 
     const [errorForm, setErrorForm] = useState(false)
 
-    const [form, setForm] = useState({
+    const [formValue, handleInputChange, reset] = useForm({
         url: '',
         name: '',
         description: ''
     })
     
-    const [formValue, handleInputChange, reset] = useForm(form)
     const { url, name, description } = formValue
 
     const handleSubmit = async (e) => {

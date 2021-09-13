@@ -1,47 +1,67 @@
 import axios from 'axios'
 import { isEmpty } from 'lodash'
-import React, { useState } from 'react'
+import React, {useState } from 'react'
+import { Link } from 'react-router-dom'
 import shortid from 'shortid'
 import { useForm } from '../hook/useForm'
 
-const TaksApp = () => {
+const TaksApp = ({stateTaks,guardarRecargarProductos}) => {
     const urlData = 'http://localhost:4000/tareas'
+
     const [errorForm, setErrorForm] = useState(false)
 
-    const [formValue, handleInputChange, reset] = useForm({
+    const [form, setForm] = useState({
         url: '',
         name: '',
         description: ''
     })
-
+    
+    const [formValue, handleInputChange, reset] = useForm(form)
     const { url, name, description } = formValue
-
-    const newTask = {
-        id: shortid.generate(),
-        url,
-        name,
-        description,
-    }
-
-    const formValidation = (params) => {
-        if (isEmpty(url) || isEmpty(name) || isEmpty(description)) {
-            setErrorForm(true);
-            return;
-        }
-    }
-
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-        formValidation()
+
+        const newTask = {
+            id: shortid.generate(),
+            url,
+            name,
+            description,
+        }
+
+        if (isEmpty(url) || isEmpty(name) || isEmpty(description)) {
+            setErrorForm(true);
+            return
+        }
+
+        setErrorForm(false);
+       
 
         try {
             const resultado = await axios.post(urlData, newTask)
+            guardarRecargarProductos(true)
         } catch (error) {
             console.log(error);
         }
     }
 
+    const handleDelete = async (tarea) => {
+        console.log(tarea)
+        const url = `http://localhost:4000/tareas/${tarea.id}`;
+        guardarRecargarProductos(true)
+        await axios.delete(url);
+    }
+
+    const handleEdit = async (tarea) => {
+      
+        setForm({
+            url: tarea.url,
+            name: tarea.name,
+            description: tarea.description
+        })
+
+    }
+    
 
     return (
         <div className="container mt-5">
@@ -52,11 +72,31 @@ const TaksApp = () => {
                 <div className="col-8">
                     <h3 className="text-center">Lista de tareas</h3>
                     <ul className="list-group">
-                        <li className="list-group-item">
-                            <span className="lead">Nombre de la tarea</span>
-                            <button className="btn btn-danger btm-am float-end ">Eliminar</button>
-                            <button className="btn btn-warning btm-am float-end mx-2">Editar</button>
-                        </li>
+                        {
+                            stateTaks.map(tarea => (
+                                <li className="list-group-item" key={tarea.id}>
+                                    <span className="lead">{tarea.name}</span>
+                                    <button
+                                        className="btn btn-danger btm-sm float-end "
+                                        onClick={() => handleDelete(tarea)}
+                                    >
+                                      borrar
+                                    </button>
+                                    <button
+                                        className="btn btn-warning btm-sm float-end mx-2"
+                                        onClick={() => handleEdit(tarea)}
+                                    >
+                                        Editar
+                                    </button>
+                                    <Link
+                                        className="btn btn-success btm-sm float-end mx-2"
+                                       to={ `/detalle/${tarea.id}`}
+                                    >
+                                        Detalle
+                                    </Link>
+                                </li>
+                            ))
+                        }
                     </ul>
                 </div>
 
@@ -65,7 +105,7 @@ const TaksApp = () => {
                     {
                         errorForm &&
                         <div className="alert alert-danger" role="alert">
-                            Falta información para el envío 
+                            Falta información para el envío
                         </div>
 
                     }
